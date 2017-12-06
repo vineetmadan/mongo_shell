@@ -1,25 +1,18 @@
 class mongo_shell::mongo34 (
-$filepath	=	'/etc/yum.repos.d/mongodb-org-3.4.repo',
 $packages = ['mongodb-org-shell-3.4.*','mongodb-org-tools-3.4.*']
 ) {
   
-  exec { 'check_presence':
-    command		=> "/bin/true",
-    onlyif		=> "/bin/test ! -f $filepath",
+  yumrepo { 'mongodb-org-3.4':
+    ensure    => 'present',
+    descr   => 'MongoDB Repository 3.4',
+    baseurl   => 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.4/x86_64/',
+    gpgcheck  => 1,
+    enabled   => 1,
+    gpgkey    => 'https://www.mongodb.org/static/pgp/server-3.4.asc',
   }
-
-  file { $filepath:
-    ensure	=> 'present',
-    mode    => '0644',
-    owner	  => 'root',
-    group	  => 'root',
-    source	=> 'puppet:///modules/mongo_shell/repo34',
-    require	=> Exec["check_presence"],
-  }
-
   package { $packages:
-    ensure	=> 'installed',
-    require	=> File["$filepath"],
+    ensure  => 'installed',
+    require => Yumrepo["mongodb-org-3.4"],
   }
 
 }

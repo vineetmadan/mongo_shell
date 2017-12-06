@@ -1,25 +1,18 @@
 class mongo_shell::mongo32 (
-$filepath = '/etc/yum.repos.d/mongodb-org-3.2.repo',
 $packages = ['mongodb-org-shell-3.2.*','mongodb-org-tools-3.2.*']
 ) {
   
-  exec { 'check_presence':
-    command   => "/bin/true",
-    onlyif    => "/bin/test ! -f $filepath",
+  yumrepo { 'mongodb-org-3.2':
+    ensure    => 'present',
+    descr   => 'MongoDB Repository 3.2',
+    baseurl   => 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/3.2/x86_64/',
+    gpgcheck  => 1,
+    enabled   => 1,
+    gpgkey    => 'https://www.mongodb.org/static/pgp/server-3.2.asc',
   }
-
-  file { $filepath:
-    ensure	=> 'present',
-    mode	  => '0644',
-    owner	  => 'root',
-    group	  => 'root',
-    source	=> 'puppet:///modules/mongo_shell/repo32',
-    require	=> Exec["check_presence"],
-  }
-
   package { $packages:
     ensure	=> 'installed',
-    require	=> File["$filepath"],
+    require	=> Yumrepo["mongodb-org-3.2"],
   }
 
 }

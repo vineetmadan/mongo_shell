@@ -1,25 +1,19 @@
 class mongo_shell::mongo36 (
-$filepath	=	'/etc/yum.repos.d/mongodb-org-3.6.repo',
 $packages = ['mongodb-org-shell-3.6.*','mongodb-org-tools-3.6.*']
 ) {
   
-  exec { 'check_presence':
-    command		=> "/bin/true",
-    onlyif		=> "/bin/test ! -f $filepath",
-  }
-
-  file { $filepath:
-    ensure	=> 'present',
-    mode	  => '0644',
-    owner	  => 'root',
-    group	  => 'root',
-    source	=> 'puppet:///modules/mongo_shell/repo36',
-    require	=> Exec["check_presence"],
+  yumrepo { 'mongodb-org-3.6':
+    ensure		=> 'present',
+    descr		=> 'MongoDB Repository 3.6',
+    baseurl		=> 'https://repo.mongodb.org/yum/redhat/$releasever/mongodb-org/testing/x86_64/',
+    gpgcheck	=> 1,
+    enabled		=> 1,
+    gpgkey		=> 'https://www.mongodb.org/static/pgp/server-3.6.asc',
   }
 
   package { $packages:
     ensure	=> 'installed',
-    require	=> File["$filepath"],
+    require	=> Yumrepo["mongodb-org-3.6"],
   }
 
 }
